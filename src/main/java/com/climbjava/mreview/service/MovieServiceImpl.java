@@ -1,0 +1,45 @@
+package com.climbjava.mreview.service;
+
+import com.climbjava.mreview.domain.dto.MovieDTO;
+import com.climbjava.mreview.domain.dto.PageRequestDTO;
+import com.climbjava.mreview.domain.dto.PageResponseDTO;
+import com.climbjava.mreview.domain.entity.Movie;
+import com.climbjava.mreview.domain.entity.MovieImage;
+import com.climbjava.mreview.repository.MovieImageRepository;
+import com.climbjava.mreview.repository.MovieRepository;
+import lombok.Data;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+@Service
+@Data
+@Log4j2
+public non-sealed class MovieServiceImpl implements MovieService{
+  private final MovieRepository repository;
+  private final MovieImageRepository imageRepository;
+
+  @Override
+  @Transactional
+  public Long register(MovieDTO dto) {
+    Map<String, Object> map = toEntity(dto);
+    Movie movie = (Movie) map.get("movie");
+    log.info(" movie.getTitle() :: {}" , movie.getTitle());
+    repository.save(movie);
+    List<MovieImage> list = ((List<MovieImage>)map.get("images"));
+    //list.forEach(image -> imageRepository.save(image));
+    list.forEach(imageRepository :: save);
+    return movie.getMno();
+  }
+
+  @Override
+  public PageResponseDTO<MovieDTO, Object[]> getList(PageRequestDTO dto) {
+    return new PageResponseDTO<>(repository.getListPage(dto.getPageable(Sort.by(Sort.Direction.DESC, "mno"))),
+            arr -> toDTO((Movie)arr[0], (List<MovieImage>)(Arrays.asList((MovieImage) arr[1])), (Double) arr[2], (Long)arr[3]));
+  }
+}

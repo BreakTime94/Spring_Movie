@@ -60,7 +60,7 @@ public class MovieRepositoryTest {
 
   @Test
   public void testGetMovieWithAll(){
-    repository.getMovieWithAll(100L).forEach(m -> log.info(Arrays.toString(m)));
+    repository.getMovieWithAll(101L).forEach(m -> log.info(Arrays.toString(m)));
   }
 
 }

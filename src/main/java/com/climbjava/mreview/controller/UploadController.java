@@ -1,66 +1,74 @@
 package com.climbjava.mreview.controller;
-
+import com.climbjava.mreview.domain.dto.UploadResultDTO;
+import jakarta.servlet.http.Part;
 import lombok.extern.log4j.Log4j2;
+import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDate;
+import java.nio.file.Files;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
-@Controller
 @Log4j2
-public class UploadController {
+@Controller
+public class UploadController  {
   @Value("${spring.servlet.multipart.location}")
   private String uploadPath;
 
+
   @PostMapping("uploadAjax")
-  public @ResponseBody ResponseEntity<?> uploadAjax(MultipartFile[] files){
 
-    return ResponseEntity.ok(Arrays.stream(files).map(f -> {
-      //이미지만 업로드 가능
-      boolean image = f.getContentType().startsWith("image");
-      if(!image){
-        log.warn(image + "is not supported");
-        return ResponseEntity.badRequest().build();
+  public @ResponseBody ResponseEntity<?> uploadAjax(MultipartFile[] files) throws IOException {
+    List<UploadResultDTO> list = new ArrayList<>();
+    for (MultipartFile f : files) {
+      if (!f.getContentType().startsWith("image/")) {
+        log.warn(f.getContentType() + "is not supported");
+        return ResponseEntity.badRequest().body("잘못된 파일 형식입니다.");
       }
-      //기본 정보
-      String originalName = f.getOriginalFilename();
+      String uuid = UUID.randomUUID().toString();
+      String path = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
 
-      //ext 확장자 추출
-      int idx = originalName.lastIndexOf(".");
-      String ext = "";
-      if(idx >= 0) {
-        ext = originalName.substring(idx);
-      }
+      String savePath = uploadPath + "/" + path;
 
-      String fileName = UUID.randomUUID() + ext;
-      String path = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
-      String realPath = uploadPath + "/files/" + path + "/";
+      new File(savePath).mkdirs();
+      String origin = f.getOriginalFilename().substring(0, f.getOriginalFilename().lastIndexOf('.')) + ".webp";
+      String saveName = uuid + "_" + origin;// 위에서 처리
+      // 원본 이미지 해상도 유지 및 확장자만 변경
+      ImageIO.write(ImageIO.read(f.getInputStream()), "webp", new File(savePath, saveName));
+//  //썸네일
+      String thumbName = "s_" + saveName;
+      BufferedImage thumbnail = Thumbnails.of(ImageIO.read(f.getInputStream()))
+              .size(200, 200)
+              .asBufferedImage();
+      ImageIO.write(thumbnail, "webp", new File(savePath, thumbName));
+//      f.transferTo(new File(savePath, saveName));      ///  파일로 저장
+      list.add(UploadResultDTO.builder().origin(origin).uuid(uuid).path(path).build());
 
-      log.info("realPath: {} fileName: {}", realPath, fileName);
-      try {
-        File file = new File(realPath + fileName);
-        if(!file.exists()) {
-          file.mkdirs();
-        }
-        f.transferTo(file);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-
-      return Map.of("fileNmae", fileName, "size", f.getSize(), "uuid", UUID.randomUUID().toString(), "path", realPath);
-    }).toList());
+    }
+    return ResponseEntity.ok(list);
   }
+  @GetMapping("display") //400 콘솔/ 컨트롤러, 메서드 로직 500, 415->
+  public ResponseEntity<?> display(UploadResultDTO dto) throws IOException {
+    File file = new File(uploadPath + "/" + dto.getPath(), dto.getUuid()+"_" + dto.getOrigin());
+    HttpHeaders headers = new HttpHeaders();
+    headers.add("Content-Type", Files.probeContentType(file.toPath()));
+    return ResponseEntity.ok().headers(headers).body(Files.readAllBytes(file.toPath()));
+  }
+
   @GetMapping("uploadEx")
-  public void uploadEx(){
+  public void uploadEx() {
 
   }
+
 }
