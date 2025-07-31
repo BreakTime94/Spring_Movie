@@ -35,18 +35,23 @@
 
     document.querySelector(".register-form").addEventListener("submit", e => {
       e.preventDefault();
-      console.log(document.querySelector("input[name=title]").value);
       console.log(e.target);
-      document.querySelector(".register-form").innerHTML += [... document.querySelectorAll(".image-list li")].map((el, i) => {
+      const text = document.querySelector("input[name=title]").value;
+      document.querySelector(".image-list").insertAdjacentHTML("afterend", [... document.querySelectorAll(".image-list li")].map((el, i) => {
         const obj = {...el.dataset};
         console.log(obj)
         let str = "";
         for(const x in obj) {
           str += `<input type="hidden" name="list[${i}].${x}" value="${obj[x]}">`;
         }
+        console.log(document.querySelector("input[name=title]").value)
+        document.querySelector("input[name=title]").value = text;
+        console.log(document.querySelector("input[name=title]").value)
+        console.log(str)
         return str;
-      }).join("")
-      //e.target.submit();
+      }).join(""));
+      console.log(e.target);
+      e.target.submit();
     })
 
   }
