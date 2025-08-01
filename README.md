@@ -15,3 +15,10 @@
 - 업로드 컨트롤러 보완, 이미지만 업로드 제한, 썸네일레이터 활용 webp 변환 업로드, 썸네일 미리보기 기능
 - 영화 등록 페이지 구현, movie 등록 및 첨부파일 등록, db 등록 및 image 로컬 저장소 저장 기능 추가
 - movie title/첨부파일 submit 후 title이 db에 저장 안되는 이슈 해결
+
+### 📅 250801
+- moive list 페이지 구현(이미지 업로드시 대표 이미지(여러장 등록시 inum이 가장 작은값) 1장, 없을시에는 placehold.co 활용
+- movie에 들어가는 title, regDate, modDate, 첨부파일 조회할 수 있도록 readpage 구현
+- Review Controller 및 Controller에 들어가는 Aspect before 로그 설정 
+- integrated test code 작성 및 MockMvc를 활용
+- swagger 의존성 추가 및 간단한 활용방법 숙지
