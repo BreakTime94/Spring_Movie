@@ -45,4 +45,5 @@ public sealed interface MovieService permits MovieServiceImpl{ //인터페이스
             .reviewCnt(reviewCnt)
             .build();
   }
+   MovieDTO get(Long mno);
 }

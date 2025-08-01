@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="~{/layout/index :: setContent(~{this :: content})}">
+  <th:block th:fragment="content">
+    <h1>Movie Read Page</h1>
+    <div class="form-grop">
+      <label>Mno</label>
+      <input type="text" class="form-control" name="mno" th:value="${dto.mno}" readonly>
+    </div>
+    <div class="form-group">
+      <label>Title</label>
+      <input type="text" class="form-control" name="title" th:value="${dto.title}" readonly>
+    </div>
+    <div class="form-group">
+      <label>RegDate</label>
+      <input type="text" class="form-control" name="regDate" th:value="${#temporals.format(dto.regDate, 'yyyy/MM/dd HH:mm:ss')}" readonly>
+    </div>
+    <div class="form-group">
+      <label>ModDate</label>
+      <input type="text" class="form-control" name="modDate" th:value="${#temporals.format(dto.modDate, 'yyyy/MM/dd HH:mm:ss')}" readonly>
+    </div>
+    <div class="uploadResult">
+      <ul>
+        <li th:each="mi : ${dto.list}">
+          <img th:if="${mi != null && mi.path != null}" th:src="'/display' + ${mi.thumb}" onerror="this.src='https://placehold.co/200x200?text=No+Image'">
+        </li>
+      </ul>
+
+    </div>
+
+    <a th:href="@{/board/modify(page = ${requestDto.page}, size = ${requestDto.size}, mno= ${dto.mno}, type=${requestDto.type}, keyword=${requestDto.keyword})}" class="btn btn-primary mt-3">modify</a>
+    <a th:href="@{/board/list(page = ${requestDto.page}, size = ${requestDto.size}, type=${requestDto.type}, keyword=${requestDto.keyword})}" class="btn btn-primary mt-3">List</a>
+
+    <div class="mt-4">
+      <h5><button class="badge bg-info addReply p-2 text-decoration-none text-white">Add Reply</button></h5>
+      <h5><button class="badge bg-secondary replyCount p-2 text-decoration-none text-white border-0">Reply Count[[${dto.reviewCnt}]]</button></h5>
+      <ul class="list-group replyList">
+
+      </ul>
+    </div>
+  </th:block>
+</th:block>
+<!-- The Modal -->
+<div class="modal" id="myModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Review</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div class="form-group">
+          <input class="form-control" type="text" name="text" placeholder="replyText...">
+        </div>
+        <div class="form-group">
+          <input class="form-control mt-4" type="text" name="replyer" placeholder="replyer">
+        </div>
+        <input type="hidden" name="rno">
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger replyRemove">Remove</button>
+        <button type="button" class="btn btn-warning replyModify">Modify</button>
+        <button type="button" class="btn btn-primary replySave">save</button>
+        <button type="button" class="btn btn-outline-secondary replyClose" data-bs-dismiss="modal">Close</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.13/dayjs.min.js" integrity="sha512-FwNWaxyfy2XlEINoSnZh1JQ5TRRtGow0D6XcmAWmYCRgvqOUTnzCxPc9uF35u5ZEpirk1uhlPVA19tflhvnW1g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.13/plugin/relativeTime.min.js" integrity="sha512-MVzDPmm7QZ8PhEiqJXKz/zw2HJuv61waxb8XXuZMMs9b+an3LoqOqhOEt5Nq3LY1e4Ipbbd/e+AWgERdHlVgaA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.13/locale/ko.min.js" integrity="sha512-ycjm4Ytoo3TvmzHEuGNgNJYSFHgsw/TkiPrGvXXkR6KARyzuEpwDbIfrvdf6DwXm+b1Y+fx6mo25tBr1Icg7Fw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!--<script th:inline="javascript">-->
+<!--  window.addEventListener("load", e => {-->
+<!--    //dayjs 전역설정-->
+<!--    dayjs.extend(window.dayjs_plugin_relativeTime);-->
+<!--    dayjs.locale('ko');-->
+<!--    const myModal = new bootstrap.Modal(document.querySelector('.modal'))-->
+<!--    const bno = [[${dto.mno}]]-->
+<!--    const listGroup = document.querySelector(".replyList");-->
+<!--   // let selectedRno = null;-->
+
+<!--    const loadJSONDATA = () => {-->
+<!--      fetch(`/replies/board/${bno}`)-->
+<!--          .then(resp => resp.json())-->
+<!--          .then(arr => {-->
+<!--            console.log(arr)-->
+<!--            // console.log(ev.type)-->
+<!--            // console.log(ev.target)-->
+<!--            // console.log(ev.currentTarget)-->
+<!--            //success-->
+<!--            document.querySelector(".replyCount").innerHTML = "Reply Count" + arr.length;-->
+
+<!--            listGroup.innerHTML = arr.map(r => {-->
+<!--              console.log(r)-->
+<!--              return `-->
+<!--                  <li class="card list-group-item" data-rno="${r.rno}"><b>${r.rno}</b>-->
+<!--                  <div class="card-body">-->
+<!--                    <h5 class="card-title">${r.text}</h5>-->
+<!--                    <h5 class="card-subtitle mb-2 text-muted">${r.replyer}</h5>-->
+<!--                    <p class="card-text">${dayjs(r.regDate).fromNow()}</p>-->
+<!--                  </div>-->
+<!--                  <div>-->
+<!--                    <button class="modifydelete btn-primary">댓글 수정 및 삭제하기</button>-->
+<!--                  </div>-->
+<!--                  </li>-->
+<!--                  `;-->
+<!--            }).join("")-->
+<!--            // let tag = "";-->
+<!--            // tag += `<li>${body.rno}</li> <li>${body.text}</li>`-->
+<!--            // document.querySelector(".replyList").html(tag);-->
+<!--          })-->
+<!--    };-->
+<!--    document.querySelector(".replyCount").addEventListener("click", loadJSONDATA);-->
+
+<!--    document.querySelector(".addReply").addEventListener("click", () => {-->
+<!--      document.querySelectorAll('.modal input[type="text"]').forEach(i => i.value = '');-->
+<!--      const inputs = document.querySelectorAll('.modal-footer button');-->
+<!--      const inputsArr = [...inputs];-->
+<!--      inputsArr.filter(b => {b.classList.add('d-none'); return b.matches('.replyClose, .replySave')}).forEach(b => b.classList.remove('d-none'));-->
+<!--      //inputsArr.map(b => {b.classList.add('d-none'); return b}).filter();-->
+
+
+
+<!--      // let list = document.querySelector(".replyRemove").classList;-->
+<!--      // console.log(list);-->
+<!--      // if(list.contains("invisible"))-->
+<!--      // document.querySelector(".replyRemove").classList.toggle("invisible", true)-->
+<!--      // document.querySelector(".replyModify").classList.toggle("invisible", true)-->
+<!--      myModal.show();-->
+<!--      //클릭 이벤트, 컨트롤러-->
+
+
+<!--      })-->
+
+<!--      //댓글등록 버튼 클릭 이벤트-->
+<!--      document.querySelector(".replySave").addEventListener("click", e => {-->
+<!--        console.log("저장버튼~");-->
+<!--        // const reply = {-->
+<!--        //   text : document.querySelector('.modal-body input[type="text"]').value,-->
+<!--        //   replyer : document.querySelector('.modal-body input[type="text"]').value,-->
+<!--        //   bno : bno, // key value 같으면 생략 가능-->
+<!--        // };-->
+<!--        const reply = {bno};-->
+<!--        e.target.closest(".modal").querySelectorAll("input[type=text]").forEach(i => {reply[i.name] = i.value})-->
+<!--        console.log(reply)-->
+
+<!--        fetch("/replies", {-->
+<!--          method: "POST",-->
+<!--          headers: {-->
+<!--            "Content-Type": "application/json"-->
+<!--          },-->
+<!--          body: JSON.stringify(reply)-->
+<!--        })-->
+<!--        .then(resp => resp.json())-->
+<!--        .then(data => {-->
+<!--          console.log(data)-->
+<!--        alert( bno + "번 글에" + data + "번 댓글 등록 완료 ~~~")-->
+<!--        myModal.hide();-->
+<!--        loadJSONDATA();-->
+<!--        });-->
+
+<!--    });-->
+<!--    // 1. 이벤트 등록 세부 개념 >> 이벤트 버블링-->
+<!--    // 2. 모달 open 시 해야할 일-->
+<!--    document.querySelector(".replyList").addEventListener("click", e => {-->
+<!--        console.log(e.target);-->
+<!--        myModal.show();-->
+<!--        console.log("모달 두둥 등장");-->
+<!--        console.log(e.target.closest("li"));-->
+<!--        const li = e.target.closest("li")-->
+<!--        const rno = li.dataset.rno;-->
+<!--        console.log( "rno 값 :: " + rno);-->
+<!--        console.log(li.querySelector(".card-title"))-->
+<!--        console.log(li.querySelector(".card-subtitle"))-->
+<!--        const text = li.querySelector(".card-title").innerText; // innerHTML도 괜찮지만 text가 조금 더 안정적-->
+<!--        const replyer = li.querySelector(".card-subtitle").innerText;-->
+
+<!--        console.log(text);-->
+<!--        console.log(replyer);-->
+
+<!--        document.querySelector('.modal-body input[name="text"]').value = text;-->
+<!--        document.querySelector('.modal-body input[name="replyer"]').value = replyer;-->
+<!--        document.querySelector('.modal-body input[name="rno"]').value = rno;-->
+
+<!--        const inputs = document.querySelectorAll('.modal-footer button');-->
+<!--        const inputsArr = [...inputs];-->
+<!--        inputsArr.filter(b => {b.classList.remove('d-none'); return b.matches('.replySave')}).forEach(b => b.classList.add('d-none'));-->
+
+
+<!--    });-->
+
+<!--    document.querySelector(".modal .replyRemove").addEventListener("click" , e => {-->
+<!--      const result = confirm("글을 삭제하시겠습니까?");-->
+<!--      if(!result) return;-->
+
+<!--       const rno = document.querySelector('.modal-body input[name="replyer"]').value //-> rno 값을 직접 가져올 수 있다.-->
+
+<!--      console.log("글 삭제 전송")-->
+<!--      fetch(`/replies/${rno}`, {-->
+<!--        method: "DELETE",-->
+<!--      })-->
+<!--          .then(() => {-->
+<!--            alert("댓글이 삭제되었습니다.")-->
+<!--            myModal.hide();-->
+<!--            loadJSONDATA();-->
+<!--          });-->
+<!--    });-->
+
+<!--      document.querySelector(".replyModify").addEventListener("click" , ev => {-->
+<!--        const result = confirm("글을 수정하시겠습니까?");-->
+<!--        if(!result) return;-->
+<!--        console.log("글 수정 전송")-->
+<!--        const rno = document.querySelector('.modal-body input[name="rno"]').value;-->
+<!--        const text = document.querySelector('.modal-body input[name="text"]').value;-->
+<!--        const replyer = document.querySelector('.modal-body input[name="replyer"]').value;-->
+<!--        const reply = {rno, text, replyer, bno};-->
+<!--        ev.target.closest(".modal").querySelectorAll("input[type=text]").forEach(i => {reply[i.name] = i.value})-->
+<!--        console.log(reply)-->
+
+<!--        fetch(`/replies/${rno}`, {-->
+<!--          method: "PUT",-->
+<!--          headers: {-->
+<!--            "Content-Type": "application/json"-->
+<!--          },-->
+<!--          body: JSON.stringify(reply)-->
+<!--        })-->
+<!--            .then(() => {-->
+<!--              alert("댓글 수정 완료")-->
+<!--              myModal.hide();-->
+<!--              loadJSONDATA();-->
+<!--            });-->
+<!--      });-->
+
+<!--  });-->
+<!--</script>-->
+
+</html>

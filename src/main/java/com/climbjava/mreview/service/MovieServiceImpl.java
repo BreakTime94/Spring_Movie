@@ -42,4 +42,15 @@ public non-sealed class MovieServiceImpl implements MovieService{
     return new PageResponseDTO<>(repository.getListPage(dto.getPageable(Sort.by(Sort.Direction.DESC, "mno"))),
             arr -> toDTO((Movie)arr[0], (List<MovieImage>)(Arrays.asList((MovieImage) arr[1])), (Double) arr[2], (Long)arr[3]));
   }
+
+  @Override
+  public MovieDTO get(Long mno) {
+    List<Object[]> list = repository.getMovieWithAll(mno);
+    Movie movie = (Movie)list.getFirst()[0];
+    List<MovieImage> movieImages = (Arrays.asList((MovieImage) list.getFirst()[1]));
+    Double avg = (Double) list.getFirst()[2];
+    Long reviewCnt = (Long) list.getFirst()[3];
+    log.info("list :: {}", list);
+    return toDTO(movie, movieImages, avg, reviewCnt);
+  }
 }

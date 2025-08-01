@@ -44,10 +44,7 @@
         for(const x in obj) {
           str += `<input type="hidden" name="list[${i}].${x}" value="${obj[x]}">`;
         }
-        console.log(document.querySelector("input[name=title]").value)
-        document.querySelector("input[name=title]").value = text;
-        console.log(document.querySelector("input[name=title]").value)
-        console.log(str)
+
         return str;
       }).join(""));
       console.log(e.target);

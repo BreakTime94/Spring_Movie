@@ -16,4 +16,9 @@ public class MovieServiceTest {
   public void testList(){
     service.getList(PageRequestDTO.builder().build()).getList().forEach(log :: info);
   }
+
+  @Test
+  public void testGet(){
+    log.info(service.get(100L));
+  }
 }
