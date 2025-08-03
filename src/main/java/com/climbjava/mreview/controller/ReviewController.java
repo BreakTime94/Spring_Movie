@@ -15,12 +15,13 @@ import org.springframework.web.bind.annotation.*;
 public class ReviewController {
   private final ReviewService service;
 
-  @Operation(summary = "영화 하나에 작성된 리뷰를 조회하는 호출", description = "필수 파라미터로 영화번호(mno)를 요구합니다.")
+  @Operation(summary = "영화 하나에 작성된 리뷰 리스트를 조회하는 호출", description = "필수 파라미터로 영화번호(mno)를 요구합니다.")
   @GetMapping("{mno}/all")
   public ResponseEntity<?> list (@PathVariable Long mno) {
     return ResponseEntity.ok(service.getListWithMovie(mno));
   }
 
+  @Operation(summary = "영화 리뷰를 작성하는 호출", description = "필수 파라미터로 영화번호(mno)와 ReviewDTO를 요구합니다.")
   @PostMapping("{mno}")
   public ResponseEntity<?> save (@PathVariable Long mno, @RequestBody ReviewDTO dto) {
     return ResponseEntity.ok(service.register(dto));

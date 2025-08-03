@@ -9,6 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class SwaggerController {
   @GetMapping("review")
   public String openReviewSwag() {
-    return "/swagger-ui/index.html#/review-controller";
+    return "forward:/swagger-ui/index.html#/review-controller";
   }
 }
