@@ -22,3 +22,6 @@
 - Review Controller 및 Controller에 들어가는 Aspect before 로그 설정 
 - integrated test code 작성 및 MockMvc를 활용
 - swagger 의존성 추가 및 간단한 활용방법 숙지
+
+### 📅 250803
+- swagger 커스터마이징 연습, 추가 연습 필요
